@@ -23,7 +23,11 @@ Gem::Specification.new do |s|
 
   # Development Gem dependencies
   s.add_runtime_dependency('rails', '>= 5.0.0')
-  s.add_runtime_dependency('carrierwave', '>= 0.5.8')
+  # carrierwave dependency removed in this fork. Upstream declares
+  # ('carrierwave', '>= 0.5.8'), which is loose enough that bundler will happily
+  # resolve carrierwave backwards across major versions to satisfy an unrelated
+  # constraint. It exists only to back Mailboxer::Message#attachment, which this
+  # fork does not support. See app/uploaders/mailboxer/attachment_uploader.rb.
 
   if RUBY_ENGINE == "rbx" && RUBY_VERSION >= "2.1.0"
     # Rubinius has it's own dependencies

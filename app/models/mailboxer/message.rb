@@ -11,7 +11,23 @@ class Mailboxer::Message < Mailboxer::Notification
     where(:conversation_id => conversation.id)
   }
 
-  mount_uploader :attachment, Mailboxer::AttachmentUploader
+  # Upstream mounts a CarrierWave uploader here. This fork removes carrierwave
+  # (see app/uploaders/mailboxer/attachment_uploader.rb), leaving `attachment`
+  # as the plain :string column it is backed by.
+  #
+  # The messaging API still accepts an `attachment` argument and passes it
+  # through as nil, which is why assigning nil stays valid. Assigning anything
+  # else would previously have been handled by the uploader and would now be
+  # type-cast to a string and silently stored as junk, so reject it loudly.
+  def attachment=(value)
+    if value.present?
+      raise Mailboxer::AttachmentsUnsupportedError,
+            'Mailboxer attachments are not supported in this fork: carrierwave ' \
+            'has been removed so the application can use image_processing 2.x.'
+    end
+
+    write_attribute(:attachment, value)
+  end
 
   class << self
     #Sets the on deliver callback method.

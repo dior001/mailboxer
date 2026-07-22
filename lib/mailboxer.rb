@@ -3,6 +3,14 @@ module Mailboxer
     autoload :Messageable, 'mailboxer/models/messageable'
   end
 
+  # Raised when a message attachment is set. Attachments are removed in this
+  # fork -- see app/uploaders/mailboxer/attachment_uploader.rb for why.
+  #
+  # Defined here rather than alongside the uploader because this file is
+  # required directly, so the constant resolves even if the autoloader never
+  # reaches the (now empty) uploader.
+  class AttachmentsUnsupportedError < StandardError; end
+
   mattr_accessor :default_from
   @@default_from = "no-reply@mailboxer.com"
   mattr_accessor :uses_emails

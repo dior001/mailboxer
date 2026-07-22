@@ -307,10 +307,19 @@ describe "Mailboxer::Models::Messageable through User" do
     expect(@conversation.receipts_for(@entity1).first.trashed).to eq true
   end
 
-  it "should be able to read attachment" do
-    @receipt = @entity1.send_message(@entity2, "Body", "Subject", nil, File.open('spec/testfile.txt'))
-    @conversation = @receipt.conversation
-    expect(@conversation.messages.first.attachment_identifier).to eq 'testfile.txt'
+  # Upstream asserts an attachment can be read back. This fork removes
+  # carrierwave (see app/uploaders/mailboxer/attachment_uploader.rb), so the
+  # contract is inverted: passing an attachment must fail loudly rather than be
+  # type-cast to a string and silently stored as junk.
+  it "rejects an attachment, which is unsupported in this fork" do
+    expect {
+      @entity1.send_message(@entity2, "Body", "Subject", nil, File.open('spec/testfile.txt'))
+    }.to raise_error(Mailboxer::AttachmentsUnsupportedError)
+  end
+
+  it "still accepts a nil attachment, as the messaging API always passes one" do
+    receipt = @entity1.send_message(@entity2, "Body", "Subject", nil, nil)
+    expect(receipt.conversation.messages.first.attachment).to be_nil
   end
 
   it "should be the same message time as passed" do

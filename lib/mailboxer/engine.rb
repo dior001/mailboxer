@@ -1,4 +1,5 @@
-require 'carrierwave'
+# carrierwave is not required in this fork -- attachments are unsupported.
+# See app/uploaders/mailboxer/attachment_uploader.rb.
 begin
   require 'sunspot_rails'
 rescue LoadError
